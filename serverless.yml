@@ -1,0 +1,46 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: handler
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+frameworkVersion: ">=1.28.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: ${env:AWS_DEFAULT_REGION, 'us-east-1'}
+  stage: ${env:TBO_BUILD_STAGE, 'prod'}
+  memorySize: 128
+  versionFunctions: false
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./tbo/tbo
+
+functions:
+  tweet:
+    handler: tbo/tbo
+    events:
+      - schedule: cron(0 */12 * * ? *)
+    environment:
+      APP_ENV: "production"
+      TWITTER_SCREEN_NAME: "kainlite"
+      TWITTER_CONSUMER_KEY: "example_key"
+      TWITTER_CONSUMER_SECRET: "example_secret"
+      TWITTER_ACCESS_KEY: "example_key"
+      TWITTER_ACCESS_SECRET: "example_secret"
