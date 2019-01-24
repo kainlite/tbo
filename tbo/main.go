@@ -34,11 +34,12 @@ type Page struct {
 
 // Article JSON object
 type Article struct {
-	ID        string `json:"id"`
-	URL       string `json:"url"`
-	Title     string `json:"title"`
-	Content   string `json:"content_html"`
-	Published string `json:"date_published"`
+	ID        string   `json:"id"`
+	URL       string   `json:"url"`
+	Title     string   `json:"title"`
+	Content   string   `json:"content_html"`
+	Tags      []string `json:tags`
+	Published string   `json:"date_published"`
 }
 
 // Twitter Access
@@ -98,12 +99,23 @@ func (t *Twitter) Setup() {
 	t.screenName = twitterScreenName
 
 	// This is the format of the tweet
-	t.tweetFormat = "%s: %s - TBO"
+	t.tweetFormat = "%s: %s %s - TBO"
 	log.Debug("Twitter client setup complete")
 }
 
+func getHashTags(tags []string) string {
+	var hashTags strings.Builder
+
+	for _, tag := range tags {
+		fmt.Fprintf(&hashTags, "#%v ", tag)
+	}
+
+	return hashTags.String()
+}
+
 func (t *Twitter) GetTweetString(article Article) string {
-	return fmt.Sprintf(t.tweetFormat, article.Title, article.URL)
+	hashTags := getHashTags(article.Tags)
+	return fmt.Sprintf(t.tweetFormat, article.Title, hashTags, article.URL)
 }
 
 // Send the tweet
