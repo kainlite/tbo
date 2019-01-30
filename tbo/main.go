@@ -138,20 +138,22 @@ func (t *Twitter) PickArticle(article Article) bool {
 
 	tweets, _, err := t.client.Timelines.UserTimeline(&twitter.UserTimelineParams{
 		ScreenName: t.screenName,
-		Count:      30,
+		Count:      100,
 		TweetMode:  "extended",
 	})
 
 	if err != nil {
-		log.Fatalf("Error getting last 30 tweets from user: %s", err)
+		log.Fatalf("Error getting last 100 tweets from user: %s", err)
 	}
 
 	for _, tweet := range tweets {
-		if strings.Contains(tweet.Text, t.GetTweetString(article)) {
+		fmt.Printf("Comparing tweet: %s, with: %s\n", tweet.FullText, t.GetTweetString(article))
+		if strings.Contains(tweet.FullText, article.Title) {
 			return true
 		}
 	}
 
+	fmt.Println("false")
 	return false
 }
 
@@ -224,7 +226,6 @@ func GetArticle() Article {
 
 		if try >= maxTries {
 			log.Fatal("Exiting after attempts to retrieve article failed.")
-
 		}
 	}
 
