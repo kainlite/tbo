@@ -138,12 +138,12 @@ func (t *Twitter) PickArticle(article Article) bool {
 
 	tweets, _, err := t.client.Timelines.UserTimeline(&twitter.UserTimelineParams{
 		ScreenName: t.screenName,
-		Count:      100,
+		Count:      30,
 		TweetMode:  "extended",
 	})
 
 	if err != nil {
-		log.Fatalf("Error getting last 100 tweets from user: %s", err)
+		log.Fatalf("Error getting last 30 tweets from user: %s", err)
 	}
 
 	for _, tweet := range tweets {
