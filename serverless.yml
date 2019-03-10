@@ -44,3 +44,5 @@ functions:
       TWITTER_CONSUMER_SECRET: "example_secret"
       TWITTER_ACCESS_KEY: "example_key"
       TWITTER_ACCESS_SECRET: "example_secret"
+      TWITTER_LAST_TWEETS: 10
+      MAX_RETRIES: 5

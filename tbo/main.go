@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -50,6 +51,7 @@ type Twitter struct {
 	client      *twitter.Client
 	tweetFormat string
 	screenName  string
+	lastTweets  int
 }
 
 func (t *Twitter) Setup() {
@@ -65,6 +67,7 @@ func (t *Twitter) Setup() {
 	twitterConsumerKey = os.Getenv("TWITTER_CONSUMER_KEY")
 	twitterConsumerSecret = os.Getenv("TWITTER_CONSUMER_SECRET")
 	twitterScreenName := os.Getenv("TWITTER_SCREEN_NAME")
+	twitterLastTweets := os.Getenv("TWITTER_LAST_TWEETS")
 
 	if twitterScreenName == "" {
 		log.Fatalf("Twitter screen name cannot be null")
@@ -97,6 +100,9 @@ func (t *Twitter) Setup() {
 
 	// Set the screen name for later use
 	t.screenName = twitterScreenName
+
+	// Set the amount of tweets to look back
+	t.lastTweets, _ = strconv.Atoi(twitterLastTweets)
 
 	// This is the format of the tweet
 	t.tweetFormat = "%s: %s %s - TBO"
@@ -134,20 +140,20 @@ func (t *Twitter) Send(article Article) {
 
 // Get a random article from the feed
 func (t *Twitter) PickArticle(article Article) bool {
-	log.Debug("Checking to see if the tweet appeared in the last 30 tweets")
+	log.Debug("Checking to see if the tweet appeared in the last %d tweets", t.lastTweets)
 
 	tweets, _, err := t.client.Timelines.UserTimeline(&twitter.UserTimelineParams{
 		ScreenName: t.screenName,
-		Count:      30,
+		Count:      t.lastTweets,
 		TweetMode:  "extended",
 	})
 
 	if err != nil {
-		log.Fatalf("Error getting last 30 tweets from user: %s", err)
+		log.Fatalf("Error getting last %d tweets from user: %s", t.lastTweets, err)
 	}
 
 	for _, tweet := range tweets {
-		fmt.Printf("Comparing tweet: %s, with: %s\n", tweet.FullText, t.GetTweetString(article))
+		fmt.Printf("Comparing tweet: %s, with: %s\n", tweet.FullText, article.Title)
 		if strings.Contains(tweet.FullText, article.Title) {
 			return true
 		}
@@ -182,7 +188,7 @@ func GetArticle() Article {
 	// Tell the remote server to send us JSON
 	req.Header.Set("Accept", "application/json")
 
-	// We're only going to try maxTries times, otherwise we'll fatal out.
+	// We're only going to try maxRetries times, otherwise we'll fatal out.
 	// Execute the request
 	log.Debugf("Attempting request to %s", req)
 	res, getErr := httpClient.Do(req)
@@ -206,7 +212,7 @@ func GetArticle() Article {
 
 	invalidArticle := true
 	try := 0
-	maxTries := 10
+	maxRetries, _ := strconv.Atoi(os.Getenv("MAX_RETRIES"))
 
 	var article Article
 	for invalidArticle {
@@ -214,7 +220,7 @@ func GetArticle() Article {
 		randomInt := rand.Intn(len(page.Articles))
 		article = page.Articles[randomInt]
 
-		fmt.Printf("%+v", randomInt)
+		fmt.Printf("Article id: %+v\n", randomInt)
 		// check to make sure the tweet hasn't been sent before
 		if tw.PickArticle(article) {
 			try += 1
@@ -224,7 +230,7 @@ func GetArticle() Article {
 		// If we get here we've found a tweet, exit the loop
 		invalidArticle = false
 
-		if try >= maxTries {
+		if try >= maxRetries {
 			log.Fatal("Exiting after attempts to retrieve article failed.")
 		}
 	}
