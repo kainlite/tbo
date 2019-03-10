@@ -40,9 +40,9 @@ functions:
     environment:
       APP_ENV: "production"
       TWITTER_SCREEN_NAME: "kainlite"
-      TWITTER_CONSUMER_KEY: "example_key"
-      TWITTER_CONSUMER_SECRET: "example_secret"
-      TWITTER_ACCESS_KEY: "example_key"
-      TWITTER_ACCESS_SECRET: "example_secret"
+      TWITTER_CONSUMER_KEY: "${env:TWITTER_CONSUMER_KEY}"
+      TWITTER_CONSUMER_SECRET: "${env:TWITTER_CONSUMER_SECRET}"
+      TWITTER_ACCESS_KEY: "${env:TWITTER_ACCESS_KEY}"
+      TWITTER_ACCESS_SECRET: "${env:TWITTER_ACCESS_SECRET}"
       TWITTER_LAST_TWEETS: 10
       MAX_RETRIES: 5

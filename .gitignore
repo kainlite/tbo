@@ -19,6 +19,8 @@ bin
 
 env.sh
 .env
+.envrc
 **/.env
 
 tbo/tbo
+
