@@ -36,7 +36,7 @@ functions:
   tweet:
     handler: tbo/tbo
     events:
-      - schedule: cron(0 0 * * ? 6)
+      - schedule: cron(0 0 ? * 6 *)
     environment:
       APP_ENV: "production"
       TWITTER_SCREEN_NAME: "kainlite"
